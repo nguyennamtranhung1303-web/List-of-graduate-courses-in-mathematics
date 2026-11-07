@@ -1,2 +1,2 @@
 # List-of-graduate-courses-in-mathematics
-1. Introduction to Combinatorics I, Cornell University, Fall 2026. Lecturer: Victor Souza
+This is a project that helps people to have an overview of the available graduate courses in mathematics at different institutions so that they can choose the best destination for their graduate studies in mathematics.
