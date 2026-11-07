@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Câu hỏi Đường lên đỉnh Olympia</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 40px;
+    color: #111;
+}
+
+h1 {
+    font-size: 40px;
+}
+
+input, select {
+    padding: 14px;
+    font-size: 18px;
+    margin: 8px 5px 8px 0;
+}
+
+input {
+    width: 95%;
+}
+
+.question {
+    padding: 18px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.meta {
+    color: #777;
+    margin-bottom: 10px;
+}
+
+summary {
+    color: #2670db;
+    cursor: pointer;
+    margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Câu hỏi Đường lên đỉnh Olympia</h1>
+
+<p>
+<a href="#" onclick="downloadCSV()">Tải CSV</a> ·
+<a href="#" onclick="downloadAnki()">Tải bộ thẻ Anki</a>
+</p>
+
+<input id="search"
+placeholder="Tìm câu hỏi hoặc đáp án..."
+oninput="render()">
+
+<br>
+
+<select id="season" onchange="render()">
+<option value="">Mọi mùa</option>
+<option>26</option>
+<option>25</option>
+<option>24</option>
+</select>
+
+<select id="round" onchange="render()">
+<option value="">Mọi vòng</option>
+<option>Final</option>
+<option>Quarterfinal</option>
+<option>Semifinal</option>
+</select>
+
+<select id="subject" onchange="render()">
+<option value="">Mọi môn</option>
+<option>Math</option>
+<option>English</option>
+<option>Literature</option>
+<option>General/Social</option>
+</select>
+
+<span id="count"></span>
+
+<div id="questions"></div>
+
+<script>
+const data = [
+{
+season: "26",
+round: "Final",
+subject: "Math",
+question: "Tìm số tự nhiên chẵn nhỏ nhất có bốn chữ số và chia hết cho 7.",
+answer: "1008"
+},
+{
+season: "26",
+round: "Final",
+subject: "English",
+question: "VEFTA is the Free ... Agreement between Vietnam and the EFTA States.",
+answer: "Trade Agreement"
+},
+{
+season: "26",
+round: "Final",
+subject: "Literature",
+question: "Nhà thơ nào viết câu thơ về lời hẹn gặp giữa Sài Gòn?",
+answer: "Tùy theo dữ liệu câu hỏi gốc."
+}
+];
+
+function render() {
+    const search = document.getElementById("search")
+        .value.toLowerCase();
+
+    const season = document.getElementById("season").value;
+    const round = document.getElementById("round").value;
+    const subject = document.getElementById("subject").value;
+
+    const filtered = data.filter(q =>
+        (!season || q.season === season) &&
+        (!round || q.round === round) &&
+        (!subject || q.subject === subject) &&
+        (q.question.toLowerCase().includes(search) ||
+         q.answer.toLowerCase().includes(search))
+    );
+
+    document.getElementById("count").textContent =
+        filtered.length + " câu";
+
+    document.getElementById("questions").innerHTML =
+        filtered.map(q => `
+        <div class="question">
+            <div class="meta">
+                Mùa ${q.season} · ${q.round} · ${q.subject}
+            </div>
+            <div>${q.question}</div>
+            <details>
+                <summary>Đáp án</summary>
+                <p>${q.answer}</p>
+            </details>
+        </div>
+        `).join("");
+}
+
+function downloadCSV() {
+    const rows = [
+        ["Season", "Round", "Subject", "Question", "Answer"],
+        ...data.map(q => [
+            q.season, q.round, q.subject,
+            q.question, q.answer
+        ])
+    ];
+
+    const csv = "\uFEFF" + rows.map(row =>
+        row.map(x => '"' + x + '"').join(",")
+    ).join("\n");
+
+    const blob = new Blob([csv], {
+        type: "text/csv;charset=utf-8;"
+    });
+
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "olympia.csv";
+    a.click();
+}
+
+function downloadAnki() {
+    const tsv = data.map(q =>
+        q.question + "\t" + q.answer
+    ).join("\n");
+
+    const blob = new Blob([tsv], {
+        type: "text/plain;charset=utf-8"
+    });
+
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "olympia-anki.txt";
+    a.click();
+}
+
+render();
+</script>
+
+</body>
+</html>
